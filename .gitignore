@@ -1,0 +1,24 @@
+# ESP-IDF build and config
+/build/
+/sdkconfig
+/sdkconfig.old
+/CMakeCache.txt
+/CMakeFiles/
+Makefile
+*.bin
+*.elf
+*.map
+
+# VSCode config
+.vscode/
+
+# Other temporary files
+*.log
+*.pyc
+*.swp
+.DS_Store
+
+# ESP-IDF related Python virtual env
+.env/
+.venv/
+
