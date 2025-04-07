@@ -1,2 +1,5 @@
-idf_component_register(SRCS "Main.cpp"
+idf_component_register(SRCS 
+                        "Main.cpp"
+                        "DHTSensor.cpp"
+                        "HumidifierController"
                     INCLUDE_DIRS ".")
