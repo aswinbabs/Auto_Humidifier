@@ -22,5 +22,5 @@ private:
     gpio_num_t humControlPin;  //Stores GPIO pin
     bool humidifierState;  //Flag to store ON/OFF state
     static void HMD_ControlTask(void* pvParameters); //static RTOS task
-    float tempThreshold = 30.0;
+    float humidityThreshold = 50.0f;
 };

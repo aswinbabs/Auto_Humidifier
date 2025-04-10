@@ -69,7 +69,7 @@ void HumidifierController::start(){
 void HumidifierController::HMD_ControlTask(void* pvParameters){
     //cast the pointer back to HumidifierController instance
     HumidifierController* controller = static_cast<HumidifierController*>(pvParameters);
-    const TickType_t xDelay = pdMS_TO_TICKS(500);
+    const TickType_t xDelay = pdMS_TO_TICKS(2000);
 
     while(true){
 
@@ -78,14 +78,14 @@ void HumidifierController::HMD_ControlTask(void* pvParameters){
             controller->turnOff(); //safe fallback
         }
         else{
-            float temp = controller->dhtSensor->getTemperature();
-            if(temp > controller->tempThreshold){
+            float humidity = controller->dhtSensor->getHumidity();
+            if(humidity < controller->humidityThreshold){
                 controller->turnOn();
-                ESP_LOGW(TAG, "Room temperature %.2f °C exceeds threshold %.2f °C", temp, controller->tempThreshold);
+                ESP_LOGW(TAG, "Room humidity %.2f%% below threshold %.2f%%", humidity, controller->humidityThreshold);
             }
             else{
                 controller->turnOff();
-                ESP_LOGI(TAG, "Room temperature %.2f °C below threshold %.2f °C", temp, controller->tempThreshold);  
+                ESP_LOGI(TAG, "Room humidity %.2f%% above threshold %.2f%%", humidity, controller->humidityThreshold);  
             }
         }
         vTaskDelay(xDelay);

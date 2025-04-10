@@ -89,3 +89,14 @@ void DHTSensor::DhtRead(){
     
     ESP_LOGE(TAG, "DHT11 read failed after %d attempts", maxTries);
 }
+
+bool DHTSensor::read(float& temp, float& hum){
+    if(readSuccess){
+        temp = temperature;
+        hum = humidity;
+        return true;
+    }
+    else{
+        return false;
+    }
+}
