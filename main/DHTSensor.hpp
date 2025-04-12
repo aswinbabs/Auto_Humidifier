@@ -16,8 +16,6 @@ public:
     void start();  //starts freeRTOS tasks
     float getTemperature() const;
     float getHumidity() const;
-
-    bool read(float& temp, float& hum); //Read method that returns success / failure
     
     explicit DHTSensor(gpio_num_t dhtPin);  //Constructor with dhtControlPin
     bool isReadSuccessful() const;

@@ -1,11 +1,13 @@
 //HumidifierController.cpp
 #include "HumidifierController.hpp"
 #include "DHTSensor.hpp"
+#include "BlynkManager.hpp"
 #include "esp_log.h"
 
 static const char* TAG = "HUMIDIFIER";
 
-HumidifierController::HumidifierController(DHTSensor* dhtSensor, gpio_num_t humPin) : dhtSensor(dhtSensor), humControlPin(humPin), humidifierState(false){
+HumidifierController::HumidifierController(DHTSensor* dhtSensor, BlynkManager* blynkManager, gpio_num_t humPin) 
+    : dhtSensor(dhtSensor), blynkManager(blynkManager), humControlPin(humPin), humidifierState(false) {
     //Initialize GPIO pin for Humidifier
     conf_HumidifierGPIO();
 }
@@ -28,27 +30,27 @@ void HumidifierController::conf_HumidifierGPIO(){
 }
 
 void HumidifierController::turnOn(){
-        if(!humidifierState){
-            gpio_set_level(humControlPin, 1);
-            humidifierState = true;
-            ESP_LOGI(TAG, "Humidifier turned ON, Pin: %d, State: %s", humControlPin, humidifierState ? "ON" : "OFF");
-        }
+    if(!humidifierState){
+        gpio_set_level(humControlPin, 1);
+        humidifierState = true;
+        ESP_LOGI(TAG, "Humidifier turned ON, Pin: %d, State: %s", humControlPin, humidifierState ? "ON" : "OFF");
+    }
 }
 
 void HumidifierController::turnOff(){
-        if(humidifierState){
-            gpio_set_level(humControlPin, 0);
-            humidifierState = false;
-            ESP_LOGI(TAG, "Humidifier turned OFF, Pin: %d, State: %s", humControlPin, humidifierState ? "ON" : "OFF");
-        }
+    if(humidifierState){
+        gpio_set_level(humControlPin, 0);
+        humidifierState = false;
+        ESP_LOGI(TAG, "Humidifier turned OFF, Pin: %d, State: %s", humControlPin, humidifierState ? "ON" : "OFF");
+    }
 }
 
 bool HumidifierController::getState() const {
     return humidifierState;
 }
+
 void HumidifierController::start(){
     //pass the current instance as pvParameters
-    //TaskHandle_t taskHandle = nullptr;
     BaseType_t result = xTaskCreate(
         HMD_ControlTask,
         "HMD_ControlTask",
@@ -65,29 +67,54 @@ void HumidifierController::start(){
     }
 }
 
-//Static task
 void HumidifierController::HMD_ControlTask(void* pvParameters){
     //cast the pointer back to HumidifierController instance
     HumidifierController* controller = static_cast<HumidifierController*>(pvParameters);
     const TickType_t xDelay = pdMS_TO_TICKS(2000);
 
     while(true){
-
-        if(!controller->dhtSensor->isReadSuccessful()){
-            ESP_LOGE(TAG, "Failed to read temperature  from DHT sensor!");
-            controller->turnOff(); //safe fallback
-        }
-        else{
-            float humidity = controller->dhtSensor->getHumidity();
-            if(humidity < controller->humidityThreshold){
-                controller->turnOn();
-                ESP_LOGW(TAG, "Room humidity %.2f%% below threshold %.2f%%", humidity, controller->humidityThreshold);
+        // Check if we're in auto or manual mode
+        bool isAutoMode = controller->blynkManager->isAutoMode();
+        
+        if (isAutoMode) {
+            // AUTO MODE: Control based on sensor readings and threshold
+            if(!controller->dhtSensor->isReadSuccessful()){
+                ESP_LOGE(TAG, "Failed to read temperature from DHT sensor!");
+                controller->turnOff(); // safe fallback
             }
             else{
+                float humidity = controller->dhtSensor->getHumidity();
+                if (humidity > 0.0 && humidity < 100.0) {  
+                    if(humidity < controller->humidityThreshold){
+                        controller->turnOn();
+                        ESP_LOGI(TAG, "[AUTO] Room humidity %.2f%% below threshold %.2f%%, Humidifier: ON", 
+                               humidity, controller->humidityThreshold);
+                    }
+                    else{
+                        controller->turnOff();
+                        ESP_LOGI(TAG, "[AUTO] Room humidity %.2f%% above threshold %.2f%%, Humidifier: OFF", 
+                               humidity, controller->humidityThreshold);  
+                    }
+                } else {
+                    ESP_LOGW(TAG, "Invalid humidity reading: %.2f, skipping humidifier control", humidity);
+                    // Keep previous humidifier state
+                }
+                
+            }
+        } 
+        else {
+            // MANUAL MODE: Control based on manual switch state (V2)
+            bool manualSwitchOn = controller->blynkManager->isManualSwitchOn();
+            
+            if (manualSwitchOn) {
+                controller->turnOn();
+                ESP_LOGI(TAG, "[MANUAL] Switch V2 is ON, Humidifier: ON");
+            } else {
                 controller->turnOff();
-                ESP_LOGI(TAG, "Room humidity %.2f%% above threshold %.2f%%", humidity, controller->humidityThreshold);  
+                ESP_LOGI(TAG, "[MANUAL] Switch V2 is OFF, Humidifier: OFF");
             }
         }
+        
         vTaskDelay(xDelay);
     }
 }

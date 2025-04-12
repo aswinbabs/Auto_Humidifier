@@ -1,3 +1,5 @@
+//DHTSensor.cpp
+
 #include "DHTSensor.hpp"
 #include "esp_log.h"
 
@@ -38,7 +40,6 @@ bool DHTSensor::isReadSuccessful() const {
 }
 
 void DHTSensor::start(){
-    // TaskHandle_t taskHandle = nullptr;
     BaseType_t result = xTaskCreate(
         dht_task,
         "dht_task",
@@ -73,9 +74,9 @@ void DHTSensor::DhtRead(){
     while(attempt < maxTries){
         result = dht_read_float_data(DHT_TYPE_DHT11, dhtControlPin, &hum, &temp);
         if(result == ESP_OK){
+            readSuccess = true;
             temperature = temp;
             humidity = hum;
-            readSuccess = true;
             ESP_LOGI(TAG, "DHT11 read success [Attempt %d]: Temp = %.2f °C, Humidity = %.2f%%", attempt+1, temperature, humidity);
             return;
         }
@@ -88,15 +89,4 @@ void DHTSensor::DhtRead(){
     }
     
     ESP_LOGE(TAG, "DHT11 read failed after %d attempts", maxTries);
-}
-
-bool DHTSensor::read(float& temp, float& hum){
-    if(readSuccess){
-        temp = temperature;
-        hum = humidity;
-        return true;
-    }
-    else{
-        return false;
-    }
 }
