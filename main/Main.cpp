@@ -10,6 +10,7 @@
 #include "WIFIManager.hpp"
 #include "BlynkManager.hpp"
 #include "esp_log.h"
+#include "Private.hpp"
 
 extern "C" {
     void app_main(void);
@@ -23,14 +24,14 @@ void app_main(void) {
     dhtSensor.start();
 
     // Init WiFi
-    static WIFIManager wifiManager("ASWINBABS", "00000000");
+    static WIFIManager wifiManager(WIFI_SSID, WIFI_PASSWORD);
     wifiManager.connect();
     vTaskDelay(pdMS_TO_TICKS(5000));
      if(wifiManager.isConnectedToWifi()){
         ESP_LOGI("Main", "WIFI:Connected!");
      }
     
-    static BlynkManager blynkManager("", "http://blynk.cloud", &dhtSensor, nullptr);
+    static BlynkManager blynkManager(BLYNK_AUTH_TOKEN, BLYNK_SERVER, &dhtSensor, nullptr);
     
     blynkManager.start();
     blynkManager.fetchControlMode();
