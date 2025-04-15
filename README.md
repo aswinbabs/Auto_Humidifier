@@ -1,19 +1,28 @@
 # 🌫️ ESP32 DHT11-Based Smart Humidifier Controller (WIP)
 
-This project automates a **humidifier** using data from a **DHT11 sensor** and allows **manual or automatic control** via the **Blynk IoT app**. Communication is handled over **WiFi** using the **MQTT protocol**, and real-time data (temperature and humidity) is sent to the Blynk server.
-
-> ⚠️ **Note:** This is a **work in progress** project.
+This project automates a **humidifier** using data from a **DHT11 sensor** and allows **manual or automatic control** via the **Blynk IoT app**. Communication is handled over **WiFi** using the **HTTP protocol**, and real-time data (temperature and humidity) is sent to the Blynk server.
 
 ---
 
 ## 🚀 Features
 
-- 📡 **Read temperature and humidity** from DHT11
-- 🌫️ **Auto-mode**: Automatically turns humidifier ON/OFF based on temperature levels
-- 🎛️ **Manual-mode**: Control the humidifier manually from Blynk app
-- 📲 **Real-time data publishing** to Blynk via MQTT
-- 🌐 **WiFi-enabled ESP32** communication
-- ⏱️ **FreeRTOS**-based task management for smooth multitasking
+- 📡 **Read temperature and humidity** from DHT11  
+- 🌫️ **Auto-mode**: Automatically turns humidifier ON/OFF based on temperature levels  
+- 🎛️ **Manual-mode**: Control the humidifier manually from Blynk app  
+- 📲 **Real-time data publishing** to Blynk via HTTP  
+- 🌐 **WiFi-enabled ESP32** communication  
+- ⏱️ **FreeRTOS**-based task management for smooth multitasking  
+
+---
+
+## 📦 Tech Stack
+
+- **ESP32** – Microcontroller  
+- **DHT11** – Temperature and humidity sensor  
+- **HTTP (GET/POST)** – For sending and receiving data  
+- **Blynk IoT** – For app-based control and data visualization  
+- **FreeRTOS** – Task scheduling and multitasking  
+- **C / Arduino Framework** – Firmware development  
 
 ---
 
@@ -22,7 +31,9 @@ This project automates a **humidifier** using data from a **DHT11 sensor** and a
 - ESP32 Development Board  
 - DHT11 Sensor  
 - Humidifier (controlled via relay module)  
-- Relay module (for humidifier control)  
+- IRLB4132 / IRLZ44N or any logic level MOSFET or standard MOSFET with driver  
+- Resistors - 220Ω, 10KΩ  
+- Diode - 1N4007  
 - Jumper wires  
 - Breadboard (optional)  
 
@@ -30,12 +41,12 @@ This project automates a **humidifier** using data from a **DHT11 sensor** and a
 
 ## 📱 Blynk Setup
 
-1. Create a project in [Blynk](https://blynk.io/)
+1. Create a project in [Blynk](https://blynk.io/)  
 2. Add the following widgets:
-   - Switch (Manual / Auto toggle)
-   - Switch (Manual humidifier ON/OFF)
-   - Value Displays for temperature & humidity
-3. Note down the **Auth Token**, **WiFi credentials**, and **MQTT server details**
+   - Switch (Manual / Auto toggle)  
+   - Switch (Manual humidifier ON/OFF)  
+   - Value Displays for temperature & humidity  
+3. Note down the **Auth Token**, **WiFi credentials**, and **HTTP server details**  
 
 ---
 
@@ -45,9 +56,9 @@ This project automates a **humidifier** using data from a **DHT11 sensor** and a
 
 ## ⚙️ How It Works
 
-- DHT11 periodically sends data
-- Data is published to MQTT topics
-- Blynk app subscribes to the topics for real-time display
-- Based on the mode selected (Manual / Auto), control logic:
-  - Auto: turns humidifier on/off based on temperature threshold
-  - Manual: user controls it directly from the app
+- DHT11 periodically sends temperature and humidity data  
+- Data is sent to the server using **HTTP POST** requests  
+- The app fetches the latest readings via **HTTP GET** requests  
+- Based on the mode selected (**Manual / Auto**), control logic:  
+  - **Auto**: the system automatically turns the humidifier on/off based on temperature thresholds  
+  - **Manual**: user can control the humidifier directly from the app via HTTP commands  
