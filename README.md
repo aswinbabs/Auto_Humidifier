@@ -1,4 +1,4 @@
-# 🌫️ ESP32 DHT11-Based Smart Humidifier Controller (WIP)
+# 🌫️ ESP32 DHT11-Based Smart Humidifier Controller 
 
 This project automates a **humidifier** using data from a **DHT11 sensor** and allows **manual or automatic control** via the **Blynk IoT app**. Communication is handled over **WiFi** using the **HTTP protocol**, and real-time data (temperature and humidity) is sent to the Blynk server.
 
@@ -22,7 +22,7 @@ This project automates a **humidifier** using data from a **DHT11 sensor** and a
 - **HTTP (GET/POST)** – For sending and receiving data  
 - **Blynk IoT** – For app-based control and data visualization  
 - **FreeRTOS** – Task scheduling and multitasking  
-- **C / Arduino Framework** – Firmware development  
+- **C++ / ESP-IDF Framework** – Firmware development  
 
 ---
 
@@ -30,7 +30,7 @@ This project automates a **humidifier** using data from a **DHT11 sensor** and a
 
 - ESP32 Development Board  
 - DHT11 Sensor  
-- Humidifier (controlled via relay module)  
+- Humidifier
 - IRLB4132 / IRLZ44N or any logic level MOSFET or standard MOSFET with driver  
 - Resistors - 220Ω, 10KΩ  
 - Diode - 1N4007  

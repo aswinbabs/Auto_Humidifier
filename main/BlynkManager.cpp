@@ -37,6 +37,7 @@ void BlynkManager::blynkMonitorTask(void* pvParameters) {
     while (true) {
         blynkManager->updateSensorReadings();
         blynkManager->fetchControlMode();
+        blynkManager->fetchHumidityThreshold();
 
         if (!blynkManager->isAutoMode()) {
             blynkManager->fetchManualSwitchState();
@@ -95,6 +96,30 @@ void BlynkManager::fetchManualSwitchState() {
         } else {
             ESP_LOGW(TAG, "Humidifier controller not set");
         }
+    }
+}
+
+void BlynkManager::fetchHumidityThreshold() {
+    std::string response = fetchFromBlynk(4);  //V4: HumidityThreshold
+    ESP_LOGI(TAG, "Humidity Threshold response: '%s'", response.c_str());
+
+    if(response.empty()){
+        ESP_LOGE(TAG, "Empty humidity threshold response");
+        return;
+    }
+
+    float humThreshold = std::stof(response);
+    if(humThreshold >= 0.0f && humThreshold <= 100.0f){
+        if(humidifierController){
+            humidifierController->setHumidityThreshold(humThreshold);
+            ESP_LOGI(TAG, "Humidity threshold updated to: %.2f%%", humThreshold);
+        }
+        else{
+            ESP_LOGW(TAG, "Humidifier controller not set");
+        }
+    }
+    else{
+        ESP_LOGW(TAG, "Invalid humidity threshold value: %.2f, ignoring", humThreshold);
     }
 }
 

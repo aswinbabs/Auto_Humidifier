@@ -16,6 +16,7 @@ public:
     void setHumidifierController(HumidifierController* controller);
     void fetchControlMode();
     void fetchManualSwitchState();
+    void fetchHumidityThreshold();
     
 private:
     std::string authToken;

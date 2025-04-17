@@ -17,6 +17,8 @@ public:
 
     explicit HumidifierController(DHTSensor* dhtSensor, BlynkManager* blynkManager, gpio_num_t humPin);
     void start();  
+    void setHumidityThreshold(float threshold);
+    float getHumidityThreshold() const;
 
 private:
     void conf_HumidifierGPIO(); 

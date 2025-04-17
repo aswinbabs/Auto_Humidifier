@@ -49,6 +49,20 @@ bool HumidifierController::getState() const {
     return humidifierState;
 }
 
+void HumidifierController::setHumidityThreshold(float threshold){
+    if(threshold >= 0.0f && threshold <= 100.0f){
+        humidityThreshold = threshold;
+        ESP_LOGI(TAG, "Humidity threshold updated to %.2f%%", humidityThreshold);
+    }
+    else{
+        ESP_LOGW(TAG, "Invalid humidity threshold value: %.2f, ignoring", threshold);
+    }
+}
+
+float HumidifierController::getHumidityThreshold() const {
+    return humidityThreshold;
+}
+
 void HumidifierController::start(){
     //pass the current instance as pvParameters
     BaseType_t result = xTaskCreate(
@@ -84,15 +98,15 @@ void HumidifierController::HMD_ControlTask(void* pvParameters){
             }
             else{
                 float humidity = controller->dhtSensor->getHumidity();
-                if (humidity > 0.0 && humidity < 100.0) {  
+                if (humidity >= 0.0 && humidity <= 100.0) {  
                     if(humidity < controller->humidityThreshold){
-                        controller->turnOn();
-                        ESP_LOGI(TAG, "[AUTO] Room humidity %.2f%% below threshold %.2f%%, Humidifier: ON", 
+                        controller->turnOff();
+                        ESP_LOGI(TAG, "[AUTO] Room humidity %.2f%% below threshold %.2f%%, Humidifier: OFF", 
                                humidity, controller->humidityThreshold);
                     }
                     else{
-                        controller->turnOff();
-                        ESP_LOGI(TAG, "[AUTO] Room humidity %.2f%% above threshold %.2f%%, Humidifier: OFF", 
+                        controller->turnOn();
+                        ESP_LOGI(TAG, "[AUTO] Room humidity %.2f%% above threshold %.2f%%, Humidifier: ON", 
                                humidity, controller->humidityThreshold);  
                     }
                 } else {
