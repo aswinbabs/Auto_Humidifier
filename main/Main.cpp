@@ -9,6 +9,7 @@
 #include "HumidifierController.hpp"
 #include "WIFIManager.hpp"
 #include "BlynkManager.hpp"
+#include "PixelManager.hpp"
 #include "esp_log.h"
 #include "Private.hpp"
 
@@ -31,8 +32,11 @@ void app_main(void) {
         ESP_LOGI("Main", "WIFI:Connected!");
      }
     
-    static BlynkManager blynkManager(BLYNK_AUTH_TOKEN, BLYNK_SERVER, &dhtSensor, nullptr);
-    
+    //PixelManager instance
+    static PixelManager pixelManager(PIXEL_LED_PIN, NUM_LEDS);
+    pixelManager.start();
+
+    static BlynkManager blynkManager(BLYNK_AUTH_TOKEN, BLYNK_SERVER, &dhtSensor, nullptr, &pixelManager);
     blynkManager.start();
     blynkManager.fetchControlMode();
     //syncing data

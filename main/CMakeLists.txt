@@ -4,5 +4,6 @@ idf_component_register(SRCS
                         "HumidifierController.cpp"
                         "WIFIManager.cpp"
                         "BlynkManager.cpp"
+                        "PixelManager.cpp"
                         INCLUDE_DIRS "."
                         )

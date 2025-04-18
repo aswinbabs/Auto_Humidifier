@@ -2,14 +2,15 @@
 #include "BlynkManager.hpp"
 #include "DHTSensor.hpp"
 #include "HumidifierController.hpp"
+#include "PixelManager.hpp"
 #include "esp_log.h"
 #include "esp_http_client.h"
 #include <cstdlib>
 
 static const char* TAG = "BlynkManager";
 
-BlynkManager::BlynkManager(const std::string& authToken, const std::string& baseURL, DHTSensor* dhtSensor, HumidifierController* humidifierController)
-    : authToken(authToken), baseURL(baseURL), dhtSensor(dhtSensor), humidifierController(humidifierController), autoMode(true), manualSwitchOn(false) {}
+BlynkManager::BlynkManager(const std::string& authToken, const std::string& baseURL, DHTSensor* dhtSensor, HumidifierController* humidifierController, PixelManager* pixelManager)
+    : authToken(authToken), baseURL(baseURL), dhtSensor(dhtSensor), humidifierController(humidifierController), pixelManager(pixelManager), autoMode(true), manualSwitchOn(false) {}
 
 void BlynkManager::start() {
     BaseType_t result = xTaskCreate(
@@ -28,6 +29,10 @@ void BlynkManager::start() {
     }
 }
 
+void BlynkManager::setPixelManager(PixelManager* manager){
+    this->pixelManager = manager;
+}
+
 void BlynkManager::blynkMonitorTask(void* pvParameters) {
     BlynkManager* blynkManager = static_cast<BlynkManager*>(pvParameters);
     const TickType_t xDelay = pdMS_TO_TICKS(3000);
@@ -38,7 +43,8 @@ void BlynkManager::blynkMonitorTask(void* pvParameters) {
         blynkManager->updateSensorReadings();
         blynkManager->fetchControlMode();
         blynkManager->fetchHumidityThreshold();
-
+        blynkManager->fetchPixelMode();
+        
         if (!blynkManager->isAutoMode()) {
             blynkManager->fetchManualSwitchState();
         }
@@ -121,6 +127,23 @@ void BlynkManager::fetchHumidityThreshold() {
     else{
         ESP_LOGW(TAG, "Invalid humidity threshold value: %.2f, ignoring", humThreshold);
     }
+}
+
+void BlynkManager::fetchPixelMode(){
+    //fetch current mode from Blynk 
+    std::string response  = fetchFromBlynk(5);
+    ESP_LOGI(TAG, "Pixel mode: '%s'", response.c_str());
+
+    if(response.empty()){
+        ESP_LOGE(TAG, "Empty Pixel mode response");
+        return;
+    }
+
+    int mode = std::stoi(response);
+    ESP_LOGI(TAG, "Fetched pixel mode:%d", mode);
+
+    //update 
+    pixelManager->updateFromBlynk(mode);
 }
 
 std::string BlynkManager::fetchFromBlynk(int virtualPin) {
