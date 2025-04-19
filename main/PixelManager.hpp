@@ -30,7 +30,8 @@ public:
     Mode getMode() const;
     void setColor(uint8_t r, uint8_t g, uint8_t b);
     void turnOff();
-    void updateFromBlynk(int value);
+    void updateModeFromBlynk(int value);
+    void setBrightness(uint8_t value);
 
 private:
    led_strip_handle_t led_strip;

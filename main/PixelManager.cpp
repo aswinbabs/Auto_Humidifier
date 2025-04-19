@@ -11,7 +11,7 @@ PixelManager::PixelManager(uint8_t PIXEL_LED_PIN, uint16_t NUM_LEDS)
             brightness(100)
             {}
 
-void PixelManager::start(){
+void PixelManager::start() {
     //Configure LED strip
     led_strip_config_t strip_config = {};
     strip_config.strip_gpio_num = pixelPin;
@@ -41,7 +41,7 @@ void PixelManager::start(){
 
 }
 
-void PixelManager::setMode(Mode mode){
+void PixelManager::setMode(Mode mode) {
     current_mode = mode;
     switch(mode){
         case Mode::OFF:
@@ -55,7 +55,7 @@ void PixelManager::setMode(Mode mode){
     }
 }
 
-PixelManager::Mode PixelManager::getMode() const{
+PixelManager::Mode PixelManager::getMode() const {
     return current_mode;
 }
 
@@ -88,7 +88,7 @@ void PixelManager::setColor(uint8_t r, uint8_t g, uint8_t b){
 
     }
 
-void PixelManager::turnOff(){
+void PixelManager::turnOff() {
     current_mode = Mode::OFF;
 
     esp_err_t err = led_strip_clear(led_strip);
@@ -101,7 +101,7 @@ void PixelManager::turnOff(){
 
 }
 
-void PixelManager::updateFromBlynk(int value){
+void PixelManager::updateModeFromBlynk(int value) {
     ESP_LOGI(TAG, "Received Blynk mode update: %d", value);
 
     if(value >= 0 && value < Mode::MODE_COUNT){
@@ -111,4 +111,17 @@ void PixelManager::updateFromBlynk(int value){
     else{
         ESP_LOGW(TAG, "Invalid mode:%d", value);
     }
+}
+
+void PixelManager::setBrightness(uint8_t value) {
+    if(value > 100){
+        value = 100;
+    }
+    if(value < 0){
+        value = 0;
+    }
+
+    brightness = value;
+    ESP_LOGI(TAG, "Brightness set to %d%%", brightness);
+    setColor(red, green, blue);
 }

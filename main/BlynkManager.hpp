@@ -20,6 +20,7 @@ public:
     void fetchManualSwitchState();
     void fetchHumidityThreshold();
     void fetchPixelMode();
+    void fetchPixelBrightness();
     
 private:
     std::string authToken;

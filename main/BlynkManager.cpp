@@ -44,6 +44,7 @@ void BlynkManager::blynkMonitorTask(void* pvParameters) {
         blynkManager->fetchControlMode();
         blynkManager->fetchHumidityThreshold();
         blynkManager->fetchPixelMode();
+        blynkManager->fetchPixelBrightness();
         
         if (!blynkManager->isAutoMode()) {
             blynkManager->fetchManualSwitchState();
@@ -129,7 +130,7 @@ void BlynkManager::fetchHumidityThreshold() {
     }
 }
 
-void BlynkManager::fetchPixelMode(){
+void BlynkManager::fetchPixelMode() {
     //fetch current mode from Blynk 
     std::string response  = fetchFromBlynk(5);
     ESP_LOGI(TAG, "Pixel mode: '%s'", response.c_str());
@@ -143,7 +144,35 @@ void BlynkManager::fetchPixelMode(){
     ESP_LOGI(TAG, "Fetched pixel mode:%d", mode);
 
     //update 
-    pixelManager->updateFromBlynk(mode);
+    pixelManager->updateModeFromBlynk(mode);
+}
+
+void BlynkManager::fetchPixelBrightness() {
+    //Fetch brightness level from Blynk
+    std::string response = fetchFromBlynk(6);
+    ESP_LOGI(TAG, "Pixel brightness response: '%s'", response.c_str());
+
+    if(response.empty()) {
+        ESP_LOGE(TAG, "Empty pixel brightness response");
+        return;
+    }
+
+    uint8_t brightness = std::stoi(response);
+
+    if(brightness >= 0 && brightness <= 100) {
+        ESP_LOGI(TAG, "Fetched pixel brightness: %d", brightness);
+
+        //update brightness in PixelManager
+        if(pixelManager) {
+            pixelManager->setBrightness(brightness);
+        }
+        else{
+            ESP_LOGW(TAG, "PixelManager not set");
+        }
+    }
+    else{
+        ESP_LOGW(TAG, "Invalid brightness value: %d, ignoring", brightness);
+    }
 }
 
 std::string BlynkManager::fetchFromBlynk(int virtualPin) {
