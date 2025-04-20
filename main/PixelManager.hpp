@@ -29,7 +29,7 @@ public:
     void start();
     void setMode(Mode mode);
     Mode getMode() const;
-    void setColor(uint8_t r, uint8_t g, uint8_t b);
+    void refreshLEDStrip();
     void turnOff();
     void updateModeFromBlynk(int value);
     void setBrightness(uint8_t value);

@@ -10,7 +10,7 @@ PixelManager::PixelManager(uint8_t PIXEL_LED_PIN, uint16_t NUM_LEDS)
             green(0), blue(0),
             brightness(0)
             {
-                
+
             }
 
 void PixelManager::start() {
@@ -29,7 +29,7 @@ void PixelManager::start() {
     rmt_config.resolution_hz = 10000000; //10MHz
     rmt_config.flags.with_dma = false;
 
-    //Create LED strip with 
+    //Create LED strip with RMT
     esp_err_t err = led_strip_new_rmt_device(&strip_config, &rmt_config, &led_strip);
     if(err != ESP_OK){
         ESP_LOGE(TAG, "Failed to create LED strip: %s", esp_err_to_name(err));
@@ -50,7 +50,7 @@ void PixelManager::setMode(Mode mode) {
             turnOff();
             break;
         case Mode::SOLID:
-            setColor(red, green, blue);
+            refreshLEDStrip();
             break;
         default:
             ESP_LOGE(TAG, "Unimplemented mode: %d", mode);
@@ -61,15 +61,15 @@ PixelManager::Mode PixelManager::getMode() const {
     return current_mode;
 }
 
-void PixelManager::setColor(uint8_t r, uint8_t g, uint8_t b){
-    red = r;
-    green = g;
-    blue = b;
+void PixelManager::refreshLEDStrip(){
+    if(current_mode == Mode::OFF){
+        return; //No updates if mode is OFF
+    }
 
     //Apply brightness to colours
-    uint8_t bright_r = (r * brightness) / 100;
-    uint8_t bright_g = (g * brightness) / 100;
-    uint8_t bright_b = (b * brightness) / 100;
+    uint8_t bright_r = (red * brightness) / 100;
+    uint8_t bright_g = (green * brightness) / 100;
+    uint8_t bright_b = (blue * brightness) / 100;
 
     //Set all leds to the specified color
     for (int i = 0; i < numLeds; i++){
@@ -85,7 +85,7 @@ void PixelManager::setColor(uint8_t r, uint8_t g, uint8_t b){
         ESP_LOGE(TAG, "failed to refresh the LED strip:%s", esp_err_to_name(err));
     }
     else{
-        ESP_LOGI(TAG, "All LEDs set to color RGB(%d, %d, %d) with brightness %d%%", r, g, b, brightness);
+        ESP_LOGI(TAG, "All LEDs updated to color RGB(%d, %d, %d) with brightness %d%%", red, green, blue, brightness);
     }
 
 }
@@ -97,14 +97,15 @@ void PixelManager::setColourFromBlynk(uint8_t r, uint8_t g, uint8_t b) {
         g = (g < 0) ? 0 : (g > 255) ? 255 : g;
         b = (b < 0) ? 0 : (b > 255) ? 255 : b;
 
+        //Update color values
         red = r;
         green = g;
         blue = b;
 
         ESP_LOGI(TAG, "Parsed RGB: R=%d, G=%d, B=%d", red, green, blue);
-        setColor(red, green, blue);
+        
+        refreshLEDStrip();
 }
-
 
 void PixelManager::turnOff() {
     current_mode = Mode::OFF;
@@ -141,5 +142,7 @@ void PixelManager::setBrightness(uint8_t value) {
 
     brightness = value;
     ESP_LOGI(TAG, "Brightness set to %d%%", brightness);
-    setColor(red, green, blue);
+    
+    refreshLEDStrip();
+    
 }
