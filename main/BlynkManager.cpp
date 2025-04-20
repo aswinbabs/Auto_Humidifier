@@ -45,6 +45,7 @@ void BlynkManager::blynkMonitorTask(void* pvParameters) {
         blynkManager->fetchHumidityThreshold();
         blynkManager->fetchPixelMode();
         blynkManager->fetchPixelBrightness();
+        blynkManager->fetchPixelColor();
         
         if (!blynkManager->isAutoMode()) {
             blynkManager->fetchManualSwitchState();
@@ -175,6 +176,37 @@ void BlynkManager::fetchPixelBrightness() {
     }
 }
 
+void BlynkManager::fetchPixelColor() {
+    //Fetch color from Blynk
+    std::string r = fetchFromBlynk(7);
+    std::string g = fetchFromBlynk(8);
+    std::string b = fetchFromBlynk(9);
+
+    if(r.empty() || g.empty() || b.empty()){
+        ESP_LOGE(TAG, "Empty color responses");
+        return;
+    }
+
+    uint8_t red = std::stoi(r);
+    uint8_t green = std::stoi(g);
+    uint8_t blue = std::stoi(b);
+
+    if(red >= 0 && red <= 255 
+        && green >= 0 && green <= 255
+        && blue >= 0 && blue <= 255){
+        ESP_LOGI(TAG, "Fetched RGB values: %d, %d, %d", red, green, blue);
+        if(pixelManager) {
+            pixelManager->setColourFromBlynk(red, green, blue);
+        }
+        else {
+            ESP_LOGW(TAG, "PixelManager not set");
+        }
+    }
+    else{
+        ESP_LOGW(TAG, "Invalid color values: %d %d %d, ignoring", red, green, blue);
+    }
+}
+
 std::string BlynkManager::fetchFromBlynk(int virtualPin) {
     std::string url = "http://blynk.cloud/external/api/get?token=" + authToken + "&V" + std::to_string(virtualPin);
     ESP_LOGI(TAG, "Fetching from Blynk URL: %s", url.c_str());
@@ -219,7 +251,7 @@ std::string BlynkManager::fetchFromBlynk(int virtualPin) {
         if (total_read > 0) {
             buffer[total_read] = '\0';
             response = std::string(buffer, total_read);
-            
+            ESP_LOGI(TAG, "Response RAW:%s", response.c_str());
             // Clean any whitespace or quotes
             if (!response.empty()) {
                 if (response.front() == '"' && response.back() == '"') {

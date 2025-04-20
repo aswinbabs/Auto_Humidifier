@@ -6,10 +6,12 @@ static const char* TAG = "PixelManager";
 
 PixelManager::PixelManager(uint8_t PIXEL_LED_PIN, uint16_t NUM_LEDS)
             :pixelPin(PIXEL_LED_PIN), numLeds(NUM_LEDS),
-            current_mode(Mode::OFF), red(255),
-            green(255), blue(255),
-            brightness(100)
-            {}
+            current_mode(Mode::OFF), red(0),
+            green(0), blue(0),
+            brightness(0)
+            {
+                
+            }
 
 void PixelManager::start() {
     //Configure LED strip
@@ -86,7 +88,23 @@ void PixelManager::setColor(uint8_t r, uint8_t g, uint8_t b){
         ESP_LOGI(TAG, "All LEDs set to color RGB(%d, %d, %d) with brightness %d%%", r, g, b, brightness);
     }
 
-    }
+}
+
+void PixelManager::setColourFromBlynk(uint8_t r, uint8_t g, uint8_t b) {
+    ESP_LOGI(TAG, "Received RGB update: %d %d %d", r, g, b);
+
+        r = (r < 0) ? 0 : (r > 255) ? 255 : r;
+        g = (g < 0) ? 0 : (g > 255) ? 255 : g;
+        b = (b < 0) ? 0 : (b > 255) ? 255 : b;
+
+        red = r;
+        green = g;
+        blue = b;
+
+        ESP_LOGI(TAG, "Parsed RGB: R=%d, G=%d, B=%d", red, green, blue);
+        setColor(red, green, blue);
+}
+
 
 void PixelManager::turnOff() {
     current_mode = Mode::OFF;

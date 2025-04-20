@@ -21,6 +21,7 @@ public:
     void fetchHumidityThreshold();
     void fetchPixelMode();
     void fetchPixelBrightness();
+    void fetchPixelColor();
     
 private:
     std::string authToken;

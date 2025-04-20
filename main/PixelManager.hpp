@@ -5,6 +5,7 @@
 #include "led_strip.h"
 #include "stdint.h"
 #include <pinDefinitions.hpp>
+#include <string>
 #include "driver/gpio.h"
 
 
@@ -32,6 +33,7 @@ public:
     void turnOff();
     void updateModeFromBlynk(int value);
     void setBrightness(uint8_t value);
+    void setColourFromBlynk(uint8_t r, uint8_t g, uint8_t b);
 
 private:
    led_strip_handle_t led_strip;
