@@ -7,6 +7,10 @@
 #include <pinDefinitions.hpp>
 #include <string>
 #include "driver/gpio.h"
+#include <math.h>
+#include "esp_timer.h"
+#include <stdlib.h> //for rand()
+#include <time.h>
 
 
 
@@ -28,8 +32,15 @@ public:
     PixelManager(uint8_t PIXEL_LED_PIN, uint16_t NUM_LEDS);
     void start();
     void setMode(Mode mode);
-    Mode getMode() const;
     void refreshLEDStrip();
+    void updateCalmPulse();
+    void blendColors(uint8_t color1_r, uint8_t color1_g, uint8_t color1_b,
+                    uint8_t color2_r, uint8_t color2_g, uint8_t color2_b,
+                    float blend_factor, uint8_t* result_r, uint8_t* result_g, uint8_t* result_b);
+    void updateRainDrops();
+    void updateOceanWave();
+    void updateGentleWave();
+    void updateBreathing();
     void turnOff();
     void updateModeFromBlynk(int value);
     void setBrightness(uint8_t value);

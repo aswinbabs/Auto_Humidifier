@@ -251,7 +251,6 @@ std::string BlynkManager::fetchFromBlynk(int virtualPin) {
         if (total_read > 0) {
             buffer[total_read] = '\0';
             response = std::string(buffer, total_read);
-            ESP_LOGI(TAG, "Response RAW:%s", response.c_str());
             // Clean any whitespace or quotes
             if (!response.empty()) {
                 if (response.front() == '"' && response.back() == '"') {
