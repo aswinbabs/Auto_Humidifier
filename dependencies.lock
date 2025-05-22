@@ -1,21 +1,17 @@
 dependencies:
   espressif/led_strip:
-    component_hash: b578eb926d9f6402fd45398b53c9bd5d1b7a15c1b2974d25aa3088e6c79b0b4c
-    dependencies:
-    - name: idf
-      require: private
-      version: '>=5.0'
+    dependencies: []
     source:
-      registry_url: https://components.espressif.com/
-      type: service
+      path: C:\Embedded_Aswin\humidifier\Auto_Humidifier\components\espressif__led_strip
+      type: local
     version: 3.0.1
   idf:
     source:
       type: idf
-    version: 5.3.2
+    version: 5.4.1
 direct_dependencies:
 - espressif/led_strip
 - idf
-manifest_hash: 3499c6a7e4fada6e8cfd01b46c9fee649173df9a4e0b47158cdb37ce3fa87c0e
+manifest_hash: 511f870fdec650053e266dd5fcd407b8240c9a7aed95e6ccff495c2ff819c8e0
 target: esp32
 version: 2.0.0

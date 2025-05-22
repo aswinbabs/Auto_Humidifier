@@ -208,7 +208,7 @@ void BlynkManager::fetchPixelColor() {
 }
 
 std::string BlynkManager::fetchFromBlynk(int virtualPin) {
-    std::string url = "http://blynk.cloud/external/api/get?token=" + authToken + "&V" + std::to_string(virtualPin);
+    std::string url = "http://blynk.cloud/external/api/get?token=" + authToken + "&v" + std::to_string(virtualPin);
     ESP_LOGI(TAG, "Fetching from Blynk URL: %s", url.c_str());
 
     esp_http_client_config_t config = {};
@@ -251,7 +251,6 @@ std::string BlynkManager::fetchFromBlynk(int virtualPin) {
         if (total_read > 0) {
             buffer[total_read] = '\0';
             response = std::string(buffer, total_read);
-            ESP_LOGI(TAG, "Response RAW:%s", response.c_str());
             // Clean any whitespace or quotes
             if (!response.empty()) {
                 if (response.front() == '"' && response.back() == '"') {
